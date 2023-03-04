@@ -19,10 +19,21 @@ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 # install k3d
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
-# # Create a cluster named mycluster with just a single server node
-k3d cluster create mycluster
+# create cluster and map port 8081 to kubernetes loadbalancer and port 8888 to nodeport 30080
+sudo k3d cluster create --api-port 6550 -p "8081:80@loadbalancer" -p "8888:30080@server:0"
 
-# # Install argo CD on the single node
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# create namespaces
+sudo kubectl create namespace argocd
+sudo kubectl create namespace dev
 
+# apply all
+sudo kubectl apply -f /tmp/argo.yaml -n argocd
+
+echo "sleeping 60 sec..."
+sleep 60
+
+sudo kubectl apply -f /tmp/ingress.yaml -n argocd
+sudo kubectl apply -f /tmp/application.yaml -n argocd
+
+# print argo cd password
+sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
