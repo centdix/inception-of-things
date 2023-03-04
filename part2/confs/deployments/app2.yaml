@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-two
+spec:
+  selector:
+    matchLabels:
+      app: app-two
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: app-two
+    spec:
+      containers:
+      - name: app-two
+        image: paulbouwer/hello-kubernetes:1.10
+        ports:
+        - containerPort: 8080

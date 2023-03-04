@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "hashicorp/bionic64"
+
+    config.vm.provision "file", source: "~/.ssh/vagrant.pub", destination: "/tmp/id_rsa.pub"
+    config.vm.provision "file", source: "~/.ssh/vagrant", destination: "/tmp/id_rsa"
+    config.vm.provision "file", source: "./confs/deployments", destination: "/tmp/deployments"
+    config.vm.provision "file", source: "./confs/services", destination: "/tmp/services"
+    config.vm.provision "file", source: "./confs/ingress.yaml", destination: "/tmp/ingress.yaml"
+
+    config.vm.provision "shell", path: "./scripts/master_script.sh"
+
+    config.ssh.insert_key = false
+    config.ssh.private_key_path = [".vagrant.d/insecure_private_key", "~/.ssh/vagrant"]
+
+    config.vm.hostname = "fgoulamaS"
+    config.vm.network "private_network", ip: "192.168.56.110"
+
+end
